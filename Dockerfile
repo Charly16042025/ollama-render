@@ -1,5 +1,7 @@
 FROM ollama/ollama
-# Pre-download a small model (free-tier friendly)
-RUN ollama pull mistral:instruct
+
+# Expose Ollama's default port
 EXPOSE 11434
-CMD ["ollama", "serve"]
+
+# Download model when container starts (not during build)
+CMD ["sh", "-c", "ollama pull mistral:instruct && ollama serve"]
