@@ -1,8 +1,12 @@
 FROM ollama/ollama
 
-# Pre-download model during build (no shell needed)
+# Environment variables
 ENV OLLAMA_HOST=0.0.0.0
-RUN ollama pull mistral:instruct
+ENV OLLAMA_KEEP_ALIVE=5m
+
+# Copy and prepare startup script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
 EXPOSE 11434
-CMD ["ollama", "serve"]
+CMD ["/start.sh"]
