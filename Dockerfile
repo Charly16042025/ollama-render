@@ -1,7 +1,11 @@
 FROM ollama/ollama
 
-# Expose Ollama's default port
+# Install bash (required for shell commands)
+USER root
+RUN apk add --no-cache bash
+USER 1000
+
 EXPOSE 11434
 
-# Download model when container starts (not during build)
-CMD ["sh", "-c", "ollama pull mistral:instruct && ollama serve"]
+# Use JSON syntax for CMD to avoid shell requirements
+CMD ["/bin/bash", "-c", "ollama pull mistral:instruct && ollama serve"]
