@@ -2,22 +2,25 @@ FROM ubuntu:22.04
 
 # 1. Install dependencies
 RUN apt-get update && \
-    apt-get install -y curl && \
+    apt-get install -y wget && \
     rm -rf /var/lib/apt/lists/*
 
-# 2. Install Ollama
-RUN curl -L https://ollama.com/download/ollama-linux-amd64 -o /usr/bin/ollama && \
+# 2. Install Ollama using the correct URL
+RUN wget https://github.com/jmorganca/ollama/releases/latest/download/ollama-linux-amd64 -O /usr/bin/ollama && \
     chmod +x /usr/bin/ollama
 
-# 3. Setup model download in one reliable step
-RUN mkdir -p /root/.ollama && \
-    (OLLAMA_HOST=0.0.0.0 /usr/bin/ollama serve &) && \
-    sleep 20 && \
+# 3. Create model directory
+RUN mkdir -p /root/.ollama
+
+# 4. Set environment variables
+ENV OLLAMA_HOST=0.0.0.0
+ENV OLLAMA_KEEP_ALIVE=5m
+
+# 5. Download model (using background process)
+RUN (OLLAMA_HOST=0.0.0.0 /usr/bin/ollama serve &) && \
+    sleep 30 && \
     OLLAMA_HOST=0.0.0.0 /usr/bin/ollama pull tinyllama && \
     pkill ollama
 
-# 4. Runtime configuration
-ENV OLLAMA_HOST=0.0.0.0
-ENV OLLAMA_KEEP_ALIVE=5m
 EXPOSE 11434
 CMD ["/usr/bin/ollama", "serve"]
